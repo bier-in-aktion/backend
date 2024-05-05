@@ -10,7 +10,7 @@ await esbuild.build({
     bundle: true,
     platform: 'node',
     outfile: 'dist/server.js',
-    tsconfig: 'server/tsconfig.json',
+    tsconfig: 'tsconfig.json',
     target: 'node20',
     external: [
         'mongodb' ,
