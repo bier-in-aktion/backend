@@ -13,13 +13,13 @@ const CONFIG = {
     /////////////////////////////////////
 
     LOG_ENABLED: true,
-    LOG_LEVEL: 'debug',
-    
+    LOG_LEVEL: 'silly',
+
     /////////////////////////////////////
     // Website Database
     /////////////////////////////////////
-    //
-    SYNCHRONIZE_ENABLED: true, 
+
+    SYNCHRONIZE_ENABLED: true,
 
     DATABASE_WEB_TYPE: 'postgres',
     DATABASE_WEB_USERNAME: 'bia',
@@ -33,11 +33,10 @@ const CONFIG = {
     /////////////////////////////////////
 
     SCHEMA_REGISTRY_HOST: 'http://localhost:8081',
-    BROKERS: [''],
-    CLIENT_ID: 'consuumer',
-    TOPIC: 't',
-    GROUP_ID: 'g',
+    BROKERS: ['localhost:29092', 'localhost:39092', 'localhost:49092'],
+    CLIENT_ID: 'backend',
+    TOPIC: 'products-updates',
+    GROUP_ID: 'backend',
 };
-  
-module.exports.CONFIG = CONFIG;
 
+module.exports.CONFIG = CONFIG;

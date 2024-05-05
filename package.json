@@ -33,6 +33,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
     "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.20.17",
     "esbuild": "^0.20.2",
     "eslint": "^8.56.0",
     "eslint-formatter-gitlab": "^5.1.0",

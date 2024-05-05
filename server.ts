@@ -7,11 +7,7 @@ import express from 'express';
 import helmet from 'helmet';
 import http from 'http';
 import { BINDINGS } from './inversify/inversify.config';
-import * as fs from 'fs';
-
-// Regular expressions to match static files, used in setHeaders() to add cache response headers
-const MATCH_FILE_JS_AND_CSS_IN_PUBLIC_FOLDER = /.*[\\|\/]public[\\|\/][0-9a-z]*\.[0-9a-z]*\.(js|css)$/;
-const MATCH_FILE_INDEX_IN_PUBLIC_FOLDER = /.*[\\|\/]public[\\|\/]index\.html$/;
+import { Consumer } from './kafka/consumer';
 
 let httpServer: http.Server;
 
@@ -74,8 +70,10 @@ let httpServer: http.Server;
         });
         httpServer.listen(CONFIG.WEB.PORT);
 
-        console.log('testing')
+        const consumer = container.resolve(Consumer);
+        consumer.start();
     } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const e: string = '' + ((error as Error).stack || error);
         writeStartupErrorLog(e);
         // eslint-disable-next-line no-console
@@ -83,21 +81,6 @@ let httpServer: http.Server;
         process.exit(1);
     }
 })();
-
-/**
- * Static content response headers
- */
-function setHeaders(res: express.Response, filePath: string, stat: any): void {
-    if (MATCH_FILE_JS_AND_CSS_IN_PUBLIC_FOLDER.test(filePath)) {
-        // always cache (for a year) application javascript and css files named with content hash
-        res.setHeader('Cache-Control', 'max-age=31556926');
-    } else if (MATCH_FILE_INDEX_IN_PUBLIC_FOLDER.test(filePath)) {
-        // never cache index.html
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', 0);
-    }
-}
 
 /**
  * Event handler for HTTP server 'error' event

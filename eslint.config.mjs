@@ -2,8 +2,6 @@ import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import TsEslint from '@typescript-eslint/eslint-plugin';
 import TsEslintParser from '@typescript-eslint/parser';
-import AngularEslint from '@angular-eslint/eslint-plugin-template';
-import RxjsEslint from 'eslint-plugin-rxjs';
 
 import StylisticPlugin from '@stylistic/eslint-plugin';
 import { FlatCompat } from '@eslint/eslintrc';
@@ -93,7 +91,6 @@ export default [
                 max: 4,
                 maxEOF: 0,
             }],
-            'no-restricted-imports': ['warn', 'rxjs/Rx'],
             'no-return-assign': 'off',
             'no-unused-vars': 'off',
             'no-shadow': 'off',
@@ -169,8 +166,9 @@ export default [
     },
     {
         files: [
-            '/',
-
+            '**/*.ts',
+            '**/*.js',
+            '**/*.mjs',
         ],
         languageOptions: {
             sourceType: 'commonjs',
@@ -213,15 +211,14 @@ export default [
         ],
         plugins: {
             '@typescript-eslint': TsEslint,
-            'rxjs': RxjsEslint,
         },
         languageOptions: {
             parser: TsEslintParser,
             parserOptions: {
                 project: [
-                    // './tsconfig.json',
-                    './client/tsconfig.json',
-                    './server/tsconfig.json',
+                    './tsconfig.json',
+                    // './client/tsconfig.json',
+                    // './server/tsconfig.json',
                 ],
                 tsconfigRootDir: __dirname,
             },
@@ -246,8 +243,6 @@ export default [
             '@typescript-eslint/restrict-template-expressions': 'warn',
             '@typescript-eslint/no-var-requires': 'warn',
             '@typescript-eslint/restrict-plus-operands': 'warn',
-
-            'rxjs/no-implicit-any-catch': 'off',
         },
     },
 ];

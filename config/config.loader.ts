@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import  Logger from '../logger/logger';
+import Logger from '../logger/logger';
 import { z } from 'zod';
 
 const WebConfig = z.object({
@@ -33,12 +33,12 @@ export type KafkaConfig = z.infer<typeof KafkaConfig>;
 export type Config = {
     WEB: WebConfig;
     KAFKA: KafkaConfig;
-}
+};
 
-const CONFIG_FILE : string = __dirname + '/config.js';
+const CONFIG_FILE: string = __dirname + '/config.js';
 
-let loadedConfig : any = null;
-let loadedValues : any;
+let loadedConfig: any = null;
+let loadedValues: any;
 try {
     loadedConfig = String(fs.readFileSync(CONFIG_FILE, 'utf-8'));
     Logger.info(`Loaded configuration from ${CONFIG_FILE}`);
@@ -49,8 +49,7 @@ try {
 }
 
 if (loadedConfig != null) {
-    try
-    {
+    try {
         // eval of config file content should export module.exports.CONFIG
         // tslint:disable-next-line:no-eval
         eval(loadedConfig);
@@ -58,8 +57,7 @@ if (loadedConfig != null) {
             throw new Error();
 
         loadedValues = module.exports.CONFIG;
-    }
-    catch (error) {
+    } catch (error) {
         Logger.warn(`Could not parse configuration from ${CONFIG_FILE}`);
     }
 }
@@ -89,7 +87,7 @@ const webConfigWrapper = WebConfig.safeParse({
 });
 
 if (!webConfigWrapper.success) {
-    let e : string = `Configuration validation error: ${webConfigWrapper.error}`;
+    let e: string = `Configuration validation error: ${webConfigWrapper.error}`;
     Logger.error(e);
     process.exit(1);
 }
@@ -103,12 +101,12 @@ const kafkaConfigWrapper = KafkaConfig.safeParse({
 });
 
 if (!kafkaConfigWrapper.success) {
-    let e : string = `Configuration validation error: ${kafkaConfigWrapper.error}`;
+    let e: string = `Configuration validation error: ${kafkaConfigWrapper.error}`;
     Logger.error(e);
     process.exit(1);
 }
 
-const config : Config = {
+const config: Config = {
     WEB: webConfigWrapper.data,
     KAFKA: kafkaConfigWrapper.data,
 };

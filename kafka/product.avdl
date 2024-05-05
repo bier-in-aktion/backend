@@ -1,0 +1,4 @@
+@namespace("com.example.app")
+protocol ExampleApp {
+  import schema "product.avro";
+}
