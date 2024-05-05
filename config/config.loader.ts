@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import Logger from '../logger/logger';
 import { z } from 'zod';
 
-const WebConfig = z.object({
+const webConfig = z.object({
     NODE_ENV: z.enum(['development', 'production']).default('production'),
     PORT: z.number().int().nonnegative().lte(65535).default(80),
     PROXY: z.boolean().default(false),
@@ -19,16 +19,16 @@ const WebConfig = z.object({
     DATABASE_WEB_PORT: z.number(),
     DATABASE_WEB_NAME: z.string(),
 });
-export type WebConfig = z.infer<typeof WebConfig>;
+export type WebConfig = z.infer<typeof webConfig>;
 
-const KafkaConfig = z.object({
+const kafkaConfig = z.object({
     SCHEMA_REGISTRY_HOST: z.string(),
     BROKERS: z.array(z.string()),
     CLIENT_ID: z.string(),
     TOPIC: z.string(),
     GROUP_ID: z.string(),
 });
-export type KafkaConfig = z.infer<typeof KafkaConfig>;
+export type KafkaConfig = z.infer<typeof kafkaConfig>;
 
 export type Config = {
     WEB: WebConfig;
@@ -68,22 +68,27 @@ if (loadedConfig != null) {
 
 const envValues = process.env;
 
-const webConfigWrapper = WebConfig.safeParse({
-    NODE_ENV: envValues['NODE_ENV'] || loadedValues.NODE_ENV,
-    PORT: envValues['PORT'] || loadedValues.PORT,
-    PROXY: envValues['PROXY'] || loadedValues.PROXY,
+function parseBool(value: string | boolean | undefined): boolean | undefined {
+    if (typeof value === 'undefined')
+        return undefined;
+    if (typeof value === 'boolean')
+        return value;
+    return value === 'true';
+}
 
-    LOG_ENABLED: envValues['LOG_ENABLED'] || loadedValues.LOG_ENABLED,
-    LOG_LEVEL: envValues['LOG_LEVEL'] || loadedValues.LOG_LEVEL,
-
-    SYNCHRONIZE_ENABLED: envValues['SYNCHRONIZE_ENABLED'] || loadedValues.SYNCHRONIZE_ENABLED,
-
-    DATABASE_WEB_TYPE: envValues['DATABASE_WEB_TYPE'] || loadedValues.DATABASE_WEB_TYPE,
-    DATABASE_WEB_USERNAME: envValues['DATABASE_WEB_USERNAME'] || loadedValues.DATABASE_WEB_USERNAME,
-    DATABASE_WEB_PASSWORD: envValues['DATABASE_WEB_PASSWORD'] || loadedValues.DATABASE_WEB_PASSWORD,
-    DATABASE_WEB_HOST: envValues['DATABASE_WEB_HOST'] || loadedValues.DATABASE_WEB_HOST,
-    DATABASE_WEB_PORT: envValues['DATABASE_WEB_PORT'] || loadedValues.DATABASE_WEB_PORT,
-    DATABASE_WEB_NAME: envValues['DATABASE_WEB_NAME'] || loadedValues.DATABASE_WEB_NAME,
+const webConfigWrapper = webConfig.safeParse({
+    NODE_ENV: envValues.NODE_ENV || loadedValues.NODE_ENV,
+    PORT: parseInt(envValues.PORT || loadedValues.PORT || '80', 10),
+    PROXY: parseBool(envValues.PROXY || loadedValues.PROXY || false),
+    LOG_ENABLED: parseBool(envValues.LOG_ENABLED || loadedValues.LOG_ENABLED),
+    LOG_LEVEL: envValues.LOG_LEVEL || loadedValues.LOG_LEVEL || 'info',
+    SYNCHRONIZE_ENABLED: parseBool(envValues.SYNCHRONIZE_ENABLED || loadedValues.SYNCHRONIZE_ENABLED),
+    DATABASE_WEB_TYPE: envValues.DATABASE_WEB_TYPE || loadedValues.DATABASE_WEB_TYPE || 'postgres',
+    DATABASE_WEB_USERNAME: envValues.DATABASE_WEB_USERNAME || loadedValues.DATABASE_WEB_USERNAME,
+    DATABASE_WEB_PASSWORD: envValues.DATABASE_WEB_PASSWORD || loadedValues.DATABASE_WEB_PASSWORD,
+    DATABASE_WEB_HOST: envValues.DATABASE_WEB_HOST || loadedValues.DATABASE_WEB_HOST,
+    DATABASE_WEB_PORT: parseInt(envValues.DATABASE_WEB_PORT || loadedValues.DATABASE_WEB_PORT, 10),
+    DATABASE_WEB_NAME: envValues.DATABASE_WEB_NAME || loadedValues.DATABASE_WEB_NAME,
 });
 
 if (!webConfigWrapper.success) {
@@ -92,12 +97,12 @@ if (!webConfigWrapper.success) {
     process.exit(1);
 }
 
-const kafkaConfigWrapper = KafkaConfig.safeParse({
-    SCHEMA_REGISTRY_HOST: envValues['SCHEMA_REGISTRY_HOST'] || loadedValues.SCHEMA_REGISTRY_HOST,
-    BROKERS: envValues['BROKERS'] || loadedValues.BROKERS,
-    TOPIC: envValues['TOPIC'] || loadedValues.TOPIC,
-    CLIENT_ID: envValues['CLIENT_ID'] || loadedValues.CLIENT_ID,
-    GROUP_ID: envValues['GROUP_ID'] || loadedValues.GROUP_ID,
+const kafkaConfigWrapper = kafkaConfig.safeParse({
+    SCHEMA_REGISTRY_HOST: envValues.SCHEMA_REGISTRY_HOST || loadedValues.SCHEMA_REGISTRY_HOST,
+    BROKERS: envValues.BROKERS ? envValues.BROKERS.split(',') : loadedValues.BROKERS,
+    CLIENT_ID: envValues.CLIENT_ID || loadedValues.CLIENT_ID,
+    TOPIC: envValues.TOPIC || loadedValues.TOPIC,
+    GROUP_ID: envValues.GROUP_ID || loadedValues.GROUP_ID,
 });
 
 if (!kafkaConfigWrapper.success) {
