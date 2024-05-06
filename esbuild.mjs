@@ -1,5 +1,8 @@
 import * as esbuild from 'esbuild';
 import { esbuildPluginTsc } from './esbuild-plugin-tsc.mjs';
+import { copy } from 'esbuild-plugin-copy';
+import { clean } from 'esbuild-plugin-clean';
+
 
 await esbuild.build({
     entryPoints: [
@@ -31,5 +34,19 @@ await esbuild.build({
             force: 'true',
             tsconfigPath: 'tsconfig.json',
         }),
+        copy({
+            assets: [{
+                from: [
+                    './kafka/product.avdl',
+                    './kafka/product.avro',
+                ],
+                to: ['.'],
+            },],
+        }),
+        clean({
+            patterns: ['./dist/product.av*'],
+            cleanOn: 'start',
+        }),
+
     ],
 })
